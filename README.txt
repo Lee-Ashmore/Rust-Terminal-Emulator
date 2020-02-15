@@ -39,3 +39,11 @@ Requirerments:
 	~Stdin and Stdout interfaces
 
 Architecture:
+
+Branching
+	All branches should be labeled with a flag indicating the type of branch.
+	the current branch types are 
+		-R: Research branch. A branch for experimentation and research for a 
+		given idea or feature.
+		-F: Feature branch. A branch for the implementation of a new feature.
+		

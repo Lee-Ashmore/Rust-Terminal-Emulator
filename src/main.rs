@@ -1,3 +1,5 @@
+extern crate nix;
+
 use std::env;
 use std::io::{stdin, stdout, Write};
 use std::path::Path;
