@@ -86,3 +86,11 @@ Notes from: https://unix.stackexchange.com/questions/117981/what-are-the-respons
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 Notes from: https://www.yabage.me/2016/07/08/tty-under-the-hood/
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Notes on Nix Library from:  https://github.com/nix-rust/nix/blob/master/src/pty.rs
+
+~Makes use of OpenPty()
+    ~takes argument winsize and termios
+    ~uses libc to create the file descriptors of the master and slave and then
+    returns the two in a tuple 
