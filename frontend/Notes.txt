@@ -1,0 +1,6 @@
+Need a solution to access graphic capabilities on macos
+
+Glutin???
+    ~https://github.com/rust-windowing/glutin
+    ~solid abstraction for creating opengl based GUIs.
+    ~Solid canidate. !!!!!!
