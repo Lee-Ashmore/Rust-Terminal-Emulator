@@ -1,0 +1,96 @@
+Notes on http://rachid.koucha.free.fr/tech_corner/pty_pdip.html
+
+~Redirection of standard input and output of processes
+    -normal input comes from input via stdin
+    -normal output goes from the process via stdout
+
+~Pseudo-Terminals
+    ~A pair of connected character mode devices. In this pair, one is the 
+    master and the other is the slave. They are connected Bidirectionally.
+    This means that any data writen to the slave is sent to the output of the
+    master and vice versus.
+    ~Normally used in order to make a process beleive it is interacting with a
+    terminal.
+    ~Typically the slave behaves as a terminal(Allowing all terminal 
+    functionality) while the Master does not.
+    ~The master does not behave as a terminal and instead is only permitted to
+    send and recieve data to and from the slave.
+    ~Two major implementation of this pattern.
+        ~BSD
+        ~System V
+            ~Linux world uses this implementation.
+
+~System V API
+    ~posix_open()
+        ~creates the master side of the pty by opening /dev/ptmx to get the 
+        file descriptor belonging to the master side
+    ~granpt()
+        ~the file descriptor recieved from posix_open() can be sent to granpt()
+        in order to change the access rights of the slave so that the identifier
+        of the user process group can be attached to the slave.
+    ~unlockpt()
+        ~unlocks the slave side after granpt() is called.
+    ~ptsname()
+        ~returns the file name of the slave side so that it can be accessed.
+
+~General Process Flow (System V)
+    1. Input recieved and sent to Father process
+    2. Father process writes master side of pty
+    3. Child process replaces input and output with slave side of pty
+    4. Child process reads slave side for input
+    5. Child process writes output to slave side of pty
+    6. Master reflects result of slave side
+    7. Father reads result from master side
+    8. Father sends output via Stdout and Stderr
+
+SUMMARY: 
+    The pty acts as a intermediary between the father process and 
+    any childeren process in order to protect each one from output/input 
+    details of the other
+        ~EXAMPLE: A terminal can communicate with it's shell through a pty. In
+        this example the terminal emulator would be the father process and the 
+        shell would be the child process. Data from the TE would be sent 
+        through the pty to the shell and output from the shell would be 
+        recieved back through the pty.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Notes from: https://unix.stackexchange.com/questions/117981/what-are-the-responsibilities-of-each-pseudo-terminal-pty-component-software
+
+~Terminals
+    ~Displays characters recieved from input
+    ~Must negotiate special characters.
+~Terminal Emmulator
+    ~same as a terminal with small change
+        ~read and write characters to file descriptors
+        ~let child processes operate via slave portion of pty
+        ~communicate with child process (like shell) through pty
+    ~doesnt need intelligence
+        ~it simply displays data it recieves from slave of pty and passes data 
+        onto slave for input
+    
+~TTY line discipline
+    ~Device/software that sits between the input and the master side of the pty
+    ~This is what does processing of special characters and determines whether 
+    or not they should be sent onward to the slave pty.
+    ~handles:
+        ~terminal screen size
+        ~settings for special characters 
+        ~local
+        ~input/output flags
+        ~input/output speed (if necessary)
+~pty
+    ~master (ptm) is not represented via a file. It is a FILE DESCRIPTOR
+    ~slave (pts) is represented by a file (Typically /dev/pts/[num])
+        ~slave is aquired by calls to granpt()->unlockpt()->ptsname()
+        ~has read() and write() in order to emulate the TTY behavior interface.
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Notes from: https://www.yabage.me/2016/07/08/tty-under-the-hood/
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Notes on Nix Library from:  https://github.com/nix-rust/nix/blob/master/src/pty.rs
+
+~Makes use of OpenPty()
+    ~takes argument winsize and termios
+    ~uses libc to create the file descriptors of the master and slave and then
+    returns the two in a tuple 
